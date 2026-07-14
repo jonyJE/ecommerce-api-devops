@@ -1,0 +1,41 @@
+name: CI/CD Pipeline DevOps
+
+# Se ejecutará cada vez que hagamos un cambio en la rama main
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  Integracion_Continua:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 1. Descargar el código
+      uses: actions/checkout@v3
+
+    - name: 2. Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: 3. Instalar dependencias
+      run: |
+        pip install -r requirements.txt
+        pip install pytest httpx
+
+    - name: 4. Ejecutar Pruebas Unitarias
+      run: |
+        pytest
+
+    - name: 5. Construir Imagen Docker
+      run: |
+        docker build -t ecommerce-api:latest .
+
+    - name: 6. Escaneo de Seguridad (Aporte Extra Trivy)
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'ecommerce-api:latest'
+        format: 'table'
+        exit-code: '0'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'

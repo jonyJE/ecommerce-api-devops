@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'fastapi-ecommerce'
+    static_configs:
+      # Le decimos que busque las métricas en nuestra API por el puerto 8080
+      - targets: ['api:8080']

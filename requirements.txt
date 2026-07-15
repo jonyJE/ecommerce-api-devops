@@ -1,5 +1,6 @@
-fastapi
-uvicorn
-psycopg2-binary
-sqlalchemy
-prometheus-fastapi-instrumentator
+fastapi==0.115.12
+uvicorn[standard]==0.34.3
+pymongo[srv]==4.13.2
+prometheus-fastapi-instrumentator==7.1.0
+pytest==8.4.0
+httpx==0.28.1

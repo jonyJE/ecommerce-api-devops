@@ -1,45 +1,46 @@
 terraform {
+  required_version = ">= 1.6.0"
+
   required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 4.0"
+    render = {
+      source  = "render-oss/render"
+      version = "1.8.0"
     }
   }
 }
 
-provider "google" {
-  project = var.project_id
-  region  = var.region
-}
+# Las credenciales se leen automáticamente desde:
+# RENDER_API_KEY y RENDER_OWNER_ID
+provider "render" {}
 
-# 1. Base de Datos PostgreSQL (Cloud SQL)
-resource "google_sql_database_instance" "postgres_instance" {
-  name             = "ecommerce-db-${var.environment}"
-  database_version = "POSTGRES_14"
-  region           = var.region
+resource "render_web_service" "api" {
+  name              = "ecommerce-api-${var.environment}"
+  plan              = var.service_plan
+  region            = var.region
+  health_check_path = "/health"
+  num_instances     = 1
 
-  settings {
-    tier = "db-f1-micro" # Opción económica para el proyecto
+  runtime_source = {
+    docker = {
+      repo_url            = var.repository_url
+      branch              = var.branch
+      dockerfile_path     = "./Dockerfile"
+      context             = "."
+      auto_deploy_trigger = "checksPass"
+    }
   }
-}
 
-# 2. Contenedor de la API (Cloud Run)
-resource "google_cloud_run_service" "api_service" {
-  name     = "ecommerce-api-${var.environment}"
-  location = var.region
+  env_vars = {
+    ENVIRONMENT = {
+      value = var.environment
+    }
 
-  template {
-    spec {
-      containers {
-        # Aquí vivirá la imagen Docker que creamos antes
-        image = "gcr.io/${var.project_id}/ecommerce-api:latest"
-        
-        # Conexión a la BD mediante Variables de Entorno (Requisito de la rúbrica)
-        env {
-          name  = "DB_CONNECTION"
-          value = google_sql_database_instance.postgres_instance.connection_name
-        }
-      }
+    MONGODB_URI = {
+      value = var.mongodb_uri
+    }
+
+    MONGODB_DB_NAME = {
+      value = var.mongodb_db_name
     }
   }
 }

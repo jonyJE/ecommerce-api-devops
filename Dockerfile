@@ -1,18 +1,54 @@
-# 1. Usamos una versión ligera de Python como base
-FROM python:3.9-slim
+# Imagen ligera y compatible con el entorno del proyecto
+FROM python:3.12-slim
 
-# 2. Creamos una carpeta llamada /app dentro del contenedor
+# Configuración segura y optimizada de Python
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+# Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# 3. Copiamos nuestro archivo de requisitos a la carpeta /app
+# Crear un usuario sin privilegios administrativos
+RUN groupadd --system appgroup \
+    && useradd --system \
+        --gid appgroup \
+        --create-home \
+        appuser
+
+# Instalar dependencias antes de copiar el código
+# Esto permite reutilizar la caché de Docker
 COPY requirements.txt .
 
-# 4. Instalamos las herramientas que listamos en requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --upgrade pip \
+    && python -m pip install -r requirements.txt
 
-# 5. Copiamos el resto de nuestro código (el main.py)
-COPY . .
+# Copiar únicamente el código necesario
+COPY --chown=appuser:appgroup main.py .
 
-# 6. Le decimos al contenedor cómo arrancar nuestra API
-# Usamos el puerto 8080 porque es el estándar que pide Google Cloud Run
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Ejecutar la aplicación como usuario no-root
+USER appuser
+
+# Puerto utilizado por la API
+EXPOSE 8080
+
+# Verificación de salud incorporada en la imagen
+HEALTHCHECK \
+    --interval=15s \
+    --timeout=5s \
+    --start-period=10s \
+    --retries=3 \
+    CMD python -c \
+    "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"
+
+# Iniciar FastAPI mediante Uvicorn
+CMD [
+    "python",
+    "-m",
+    "uvicorn",
+    "main:app",
+    "--host",
+    "0.0.0.0",
+    "--port",
+    "8080"
+]

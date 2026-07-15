@@ -18,7 +18,7 @@ resource "render_web_service" "api" {
   plan              = var.service_plan
   region            = var.region
   health_check_path = "/health"
-  num_instances = var.instance_count
+  num_instances     = var.instance_count
 
   runtime_source = {
     docker = {

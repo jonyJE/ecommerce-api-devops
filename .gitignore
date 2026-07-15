@@ -22,3 +22,7 @@ crash.log
 .idea/
 .DS_Store
 Thumbs.db
+
+# Perfiles Terraform sin secretos
+!terraform/environments/
+!terraform/environments/*.tfvars

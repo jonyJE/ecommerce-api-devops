@@ -52,3 +52,14 @@ variable "mongodb_db_name" {
   type        = string
   default     = "ecommerce"
 }
+
+variable "instance_count" {
+  description = "Cantidad de instancias del servicio"
+  type        = number
+  default     = 1
+
+  validation {
+    condition     = var.instance_count >= 1
+    error_message = "La cantidad de instancias debe ser al menos 1."
+  }
+}

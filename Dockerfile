@@ -42,13 +42,4 @@ HEALTHCHECK \
     "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"
 
 # Iniciar FastAPI mediante Uvicorn
-CMD [
-    "python",
-    "-m",
-    "uvicorn",
-    "main:app",
-    "--host",
-    "0.0.0.0",
-    "--port",
-    "8080"
-]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

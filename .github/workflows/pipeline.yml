@@ -67,9 +67,12 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Reportar vulnerabilidades altas y críticas
-        uses: aquasecurity/trivy-action@v0.34.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          scan-type: image
+          scan-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          version: v0.72.0
+          cache: false
           format: table
           exit-code: "0"
           ignore-unfixed: true
@@ -77,9 +80,12 @@ jobs:
           severity: HIGH,CRITICAL
 
       - name: Bloquear vulnerabilidades críticas
-        uses: aquasecurity/trivy-action@v0.34.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          scan-type: image
+          scan-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          skip-setup-trivy: true
+          cache: false
           format: table
           exit-code: "1"
           ignore-unfixed: true

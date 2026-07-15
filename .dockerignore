@@ -1,0 +1,32 @@
+# Secretos
+.env
+.env.*
+!.env.example
+
+# Control de versiones
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.py[cod]
+.pytest_cache
+.venv
+venv
+
+# Terraform
+terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Monitoreo local
+grafana
+prometheus.yml
+docker-compose.yml
+
+# Documentación y archivos del sistema
+README.md
+.DS_Store
+Thumbs.db

@@ -44,7 +44,7 @@ app = FastAPI(
         "API REST para gestionar el catálogo de productos "
         "de una tienda e-commerce."
     ),
-    version="1.0.0"
+    version="1.0.1"
 )
 
 Instrumentator().instrument(app).expose(app)
